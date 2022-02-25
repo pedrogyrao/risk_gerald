@@ -27,13 +27,13 @@ INFO_TO_INSURANCE = {
     'house': 'insurance'
 }
 
-#todo: move keys to a contract file
 DISABLED_INSURANCE_KEYS = [INCOME, VEHICLE_YEAR, HOUSE_OWNERSHIP_STATUS]
 
 FIRST_AGE_THRESHOLD = 30
 SECOND_AGE_THRESHOLD = 40
 LAST_AGE_THRESHOLD = 60
 
+INCOME_THRESHOLD = 200000
 
 
 def disable_rule(data, result):  # 1
@@ -60,9 +60,16 @@ def age_rule(data, result):  # 2
     return result
 
 
+def _run_deduction(result, deduct, insurance_lines=INSURANCE_LINES):
+    for insurance_line in insurance_lines:
+        if type(result[insurance_line]) == int:
+            result[insurance_line] -= deduct
+    return result
+
 
 def age_points(data, result):
-    '''If the user is under 30 years old, deduct 2 risk points from all
+    '''
+    If the user is under 30 years old, deduct 2 risk points from all
     lines of insurance. If the user is between 30 and 40 years old, deduct 1.
     '''
     deduct = 0
@@ -70,13 +77,16 @@ def age_points(data, result):
         deduct = 2
     elif data[AGE] < SECOND_AGE_THRESHOLD:
         deduct = 1
-
-    for insurance_line in INSURANCE_LINES:
-        if type(result[insurance_line]) == int:
-            result[insurance_line] -= deduct
+    return _run_deduction(result, deduct)
 
 
-    return result
+def income_rule(data, result):
+    '''
+    If the user's income is above $200k, deduct 1 risk point
+    from all lines of insurance.
+    '''
+    deduct = 1 if data[INCOME] > INCOME_THRESHOLD else 0
+    return _run_deduction(result, deduct)
 
 
 def evaluate(data):
@@ -84,4 +94,5 @@ def evaluate(data):
     result = disable_rule(data, result)
     result = age_rule(data, result)
     result = age_points(data, result)
+    result = income_rule(data, result)
     return result
