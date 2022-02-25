@@ -1,7 +1,3 @@
-from functools import wraps
-from multiprocessing.sharedctypes import Value
-
-
 # Input Data Keys
 # todo: turn then into a structure like enum
 AGE = "age"  # 35
@@ -44,6 +40,9 @@ INSURANCE_LINES = [
     HOME_INSURANCE,
     AUTO_INSURANCE
 ]
+
+MORTGAGED = 'mortgaged'
+OWNED = 'owned'
 
 validations = []
 
@@ -92,6 +91,11 @@ def do_valid_input(data):
     for validation in validations:
         data = validation(data)
     return data
+
+
+def is_house_mortgaged(data):
+    return data[HOUSE_OWNERSHIP_STATUS] == MORTGAGED
+
 
 
 def assemble_empty_result():

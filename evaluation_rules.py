@@ -1,5 +1,4 @@
 '''
-4. If the user's income is above $200k, deduct 1 risk point from all lines of insurance.
 5. If the user's house is mortgaged, add 1 risk point to the users’s home score and add 1 risk point to her disability score.
 6. If the user has dependents, add 1 risk point to both the disability and life scores.
 7. If the user is married, add 1 risk point to the life score and remove 1 risk point from disability.
@@ -7,7 +6,7 @@
 '''
 from contract import assemble_empty_result
 
-# input related keys
+# input related
 from contract import (
     AGE,
     DEPENDENTS,
@@ -17,7 +16,14 @@ from contract import (
     RISK_QUESTIONS,
     VEHICLE_YEAR,
 )
-from contract import INSURANCE_LINES
+#ensurance related
+from contract import (
+    INSURANCE_LINES,
+    HOME_KEY,
+    DISABILITY_KEY
+)
+
+from contract import is_house_mortgaged
 
 INELIGIBLE = 'ineligible'
 
@@ -36,7 +42,7 @@ LAST_AGE_THRESHOLD = 60
 INCOME_THRESHOLD = 200000
 
 
-def disable_rule(data, result):  # 1
+def disable_rule(data, result):
     '''
     If the user doesn’t have income, vehicles or houses, the user is
     ineligible for disability, auto, and home insurance, **respectively**.
@@ -49,7 +55,7 @@ def disable_rule(data, result):  # 1
     return result
 
 
-def age_rule(data, result):  # 2
+def age_rule(data, result):
     '''
     If the user is over 60 years old, the user is
     ineligible for disability and life insurance.
@@ -89,10 +95,21 @@ def income_rule(data, result):
     return _run_deduction(result, deduct)
 
 
+def house_ownership_rule(data, result):
+    '''
+    If the user's house is mortgaged, add 1 risk point to the
+    users’s home score and add 1 risk point to her disability score.
+    '''
+    if is_house_mortgaged(data):
+        return _run_deduction(result, -1, insurance_lines=[HOME_KEY, DISABILITY_KEY])
+    return result
+
+
 def evaluate(data):
     result = assemble_empty_result()
     result = disable_rule(data, result)
     result = age_rule(data, result)
     result = age_points(data, result)
     result = income_rule(data, result)
+    result = house_ownership_rule(data, result)
     return result
