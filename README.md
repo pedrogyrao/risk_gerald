@@ -61,7 +61,7 @@ This last step does the range mapping between risk points and the expected range
     cd risk_gerald
     ```
 
-1. Install the requirements
+1. Install the requirements:
 
     ```bash
     pip install -r requirements.txt
@@ -71,4 +71,10 @@ This last step does the range mapping between risk points and the expected range
 
     ```bash
     python app.py
+    ```
+
+1. Run tests:
+
+    ```bash
+    pytest -s
     ```
