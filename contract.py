@@ -44,6 +44,9 @@ INSURANCE_LINES = [
 MORTGAGED = 'mortgaged'
 OWNED = 'owned'
 
+MARRIED = 'married'
+SINGLE = 'single'
+
 validations = []
 
 
@@ -96,6 +99,9 @@ def do_valid_input(data):
 def is_house_mortgaged(data):
     return data[HOUSE_OWNERSHIP_STATUS] == MORTGAGED
 
+
+def is_married(data):
+    return data[MARITAL_STATUS] == MARRIED
 
 
 def assemble_empty_result():

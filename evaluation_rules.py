@@ -1,5 +1,4 @@
 '''
-7. If the user is married, add 1 risk point to the life score and remove 1 risk point from disability.
 8. If the user's vehicle was produced in the last 5 years, add 1 risk point to that vehicle’s score.
 '''
 from contract import assemble_empty_result
@@ -23,7 +22,7 @@ from contract import (
     LIFE_KEY,
 )
 
-from contract import is_house_mortgaged
+from contract import is_house_mortgaged, is_married
 
 INELIGIBLE = 'ineligible'
 
@@ -115,6 +114,16 @@ def dependents_rule(data, result):
     return result
 
 
+def marital_state_rule(data, result):
+    '''
+    If the user is married, add 1 risk point to the life score
+    and remove 1 risk point from disability.
+    '''
+    if is_married(data):
+        return _run_deduction(result, -1, insurance_lines=[LIFE_KEY, DISABILITY_KEY])
+    return result
+
+
 def evaluate(data):
     result = assemble_empty_result()
     result = disable_rule(data, result)
@@ -123,4 +132,5 @@ def evaluate(data):
     result = income_rule(data, result)
     result = house_ownership_rule(data, result)
     result = dependents_rule(data, result)
+    result = marital_state_rule(data, result)
     return result
