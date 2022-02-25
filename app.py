@@ -13,7 +13,6 @@ def evalulate_risk():
         data = do_valid_input(request.json)
         response = evaluate(data)
     except ContractError as e:
-        print(e)
         return abort(400)
     except Exception as e:
         return abort(500)
@@ -21,4 +20,4 @@ def evalulate_risk():
 
 
 if __name__ == '__main__':
-   app.run(debug=True)
+   app.run()

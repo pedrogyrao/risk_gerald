@@ -104,10 +104,10 @@ def is_married(data):
     return data[MARITAL_STATUS] == MARRIED
 
 
-def assemble_empty_result():
+def assemble_empty_result(base_score):
     return {
-        "auto": 0,
-        "disability": 0,
-        "home": 0,
-        "life": 0
+        "auto": base_score,
+        "disability": base_score,
+        "home": base_score,
+        "life": base_score
     }

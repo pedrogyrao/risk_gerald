@@ -7,11 +7,10 @@ from contract import (
     DEPENDENTS,
     HOUSE_OWNERSHIP_STATUS,
     INCOME,
-    MARITAL_STATUS,
     RISK_QUESTIONS,
     VEHICLE_YEAR,
 )
-#ensurance related
+# ensurance related
 from contract import (
     INSURANCE_LINES,
     AUTO_KEY,
@@ -19,7 +18,6 @@ from contract import (
     HOME_KEY,
     LIFE_KEY,
 )
-
 from contract import is_house_mortgaged, is_married
 
 INELIGIBLE = 'ineligible'
@@ -34,6 +32,10 @@ SECOND_AGE_THRESHOLD = 40
 LAST_AGE_THRESHOLD = 60
 INCOME_THRESHOLD = 200000
 VEHICLE_YEAR_THRESHOLD = 5
+
+ECONOMIC = 'economic'
+REGULAR = 'regular'
+RESPONSIBLE = 'responsible'
 
 risk_rules = []
 
@@ -50,9 +52,7 @@ def risk_rule(func):
     return func
 
 
-def run_risk_rules(data, result=None):
-    if not result:
-        result = assemble_empty_result()
+def run_risk_rules(data, result):
     for risk_rule in risk_rules:
         result = risk_rule(data, result)
     return result
@@ -154,6 +154,32 @@ def vehicle_rule(data, result):
     return result
 
 
+def calculate_base_score(data):
+    base_score = sum(data[RISK_QUESTIONS])
+    return base_score
+
+
+def map_scores(result):
+    '''
+    - 0 and below -> “economic”
+    - 1 and 2 -> “regular”
+    - 3 and above -> “responsible”
+    '''
+    for key, value in result.items():
+        if value == INELIGIBLE:
+            continue
+        if value < 1:
+            result[key] = ECONOMIC
+        elif value < 3:
+            result[key] = REGULAR
+        else:
+            result[key] = RESPONSIBLE
+    return result
+
+
 def evaluate(data):
-    result = run_risk_rules(data)
+    base_score = calculate_base_score(data)
+    result = assemble_empty_result(base_score)
+    result = run_risk_rules(data, result)
+    result = map_scores(result)
     return result
