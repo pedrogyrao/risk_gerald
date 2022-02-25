@@ -23,24 +23,42 @@ from contract import (
 from contract import is_house_mortgaged, is_married
 
 INELIGIBLE = 'ineligible'
-
 INFO_TO_INSURANCE = {
-    'income': 'disability',
-    'vehicle': 'auto',
-    'house': 'insurance'
+    INCOME: DISABILITY_KEY,
+    VEHICLE_YEAR: AUTO_KEY,
+    HOUSE_OWNERSHIP_STATUS: HOME_KEY
 }
-
 DISABLED_INSURANCE_KEYS = [INCOME, VEHICLE_YEAR, HOUSE_OWNERSHIP_STATUS]
-
 FIRST_AGE_THRESHOLD = 30
 SECOND_AGE_THRESHOLD = 40
 LAST_AGE_THRESHOLD = 60
-
 INCOME_THRESHOLD = 200000
-
 VEHICLE_YEAR_THRESHOLD = 5
 
+risk_rules = []
 
+
+def _run_deduction(result, deduct, insurance_lines=INSURANCE_LINES):
+    for insurance_line in insurance_lines:
+        if type(result[insurance_line]) == int:
+            result[insurance_line] -= deduct
+    return result
+
+
+def risk_rule(func):
+    risk_rules.append(func)
+    return func
+
+
+def run_risk_rules(data, result=None):
+    if not result:
+        result = assemble_empty_result()
+    for risk_rule in risk_rules:
+        result = risk_rule(data, result)
+    return result
+
+
+@risk_rule
 def disable_rule(data, result):
     '''
     If the user doesn’t have income, vehicles or houses, the user is
@@ -54,6 +72,7 @@ def disable_rule(data, result):
     return result
 
 
+@risk_rule
 def age_rule(data, result):
     '''
     If the user is over 60 years old, the user is
@@ -65,13 +84,7 @@ def age_rule(data, result):
     return result
 
 
-def _run_deduction(result, deduct, insurance_lines=INSURANCE_LINES):
-    for insurance_line in insurance_lines:
-        if type(result[insurance_line]) == int:
-            result[insurance_line] -= deduct
-    return result
-
-
+@risk_rule
 def age_points(data, result):
     '''
     If the user is under 30 years old, deduct 2 risk points from all
@@ -85,6 +98,7 @@ def age_points(data, result):
     return _run_deduction(result, deduct)
 
 
+@risk_rule
 def income_rule(data, result):
     '''
     If the user's income is above $200k, deduct 1 risk point
@@ -94,6 +108,7 @@ def income_rule(data, result):
     return _run_deduction(result, deduct)
 
 
+@risk_rule
 def house_ownership_rule(data, result):
     '''
     If the user's house is mortgaged, add 1 risk point to the
@@ -104,6 +119,7 @@ def house_ownership_rule(data, result):
     return result
 
 
+@risk_rule
 def dependents_rule(data, result):
     '''
     If the user has dependents, add 1 risk point to
@@ -114,6 +130,7 @@ def dependents_rule(data, result):
     return result
 
 
+@risk_rule
 def marital_state_rule(data, result):
     '''
     If the user is married, add 1 risk point to the life score
@@ -124,6 +141,7 @@ def marital_state_rule(data, result):
     return result
 
 
+@risk_rule
 def vehicle_rule(data, result):
     '''
     If the user's vehicle was produced in the last 5 years,
@@ -137,13 +155,5 @@ def vehicle_rule(data, result):
 
 
 def evaluate(data):
-    result = assemble_empty_result()
-    result = disable_rule(data, result)
-    result = age_rule(data, result)
-    result = age_points(data, result)
-    result = income_rule(data, result)
-    result = house_ownership_rule(data, result)
-    result = dependents_rule(data, result)
-    result = marital_state_rule(data, result)
-    result = vehicle_rule(data, result)
+    result = run_risk_rules(data)
     return result
