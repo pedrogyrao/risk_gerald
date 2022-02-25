@@ -37,7 +37,24 @@ ECONOMIC = 'economic'
 REGULAR = 'regular'
 RESPONSIBLE = 'responsible'
 
+RULE_ARGNAMES = ('data', 'result')
 risk_rules = []
+
+
+class BadRuleFormat(Exception):
+    pass
+
+
+def risk_rule(rule):
+    func_args = rule.__code__.co_varnames
+    if func_args != RULE_ARGNAMES:
+        raise BadRuleFormat(
+            'Rule {rule} has bad arguments {args}'.format(
+                rule=rule.__name__,
+                args=func_args
+            ))
+    risk_rules.append(rule)
+    return rule
 
 
 def _run_deduction(result, deduct, insurance_lines=INSURANCE_LINES):
@@ -45,11 +62,6 @@ def _run_deduction(result, deduct, insurance_lines=INSURANCE_LINES):
         if type(result[insurance_line]) == int:
             result[insurance_line] -= deduct
     return result
-
-
-def risk_rule(func):
-    risk_rules.append(func)
-    return func
 
 
 def run_risk_rules(data, result):
