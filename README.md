@@ -78,3 +78,28 @@ This last step does the range mapping between risk points and the expected range
     ```bash
     pytest -s
     ```
+
+1. To request:
+
+    ```python
+    import requests
+    url = 'http://127.0.0.1:5000/evaluate_risk'
+    base_data = {
+    "age": 35,
+    "dependents": 2,
+    "house": {"ownership_status": "owned"},
+    "income": 200000,
+    "marital_status": "married",
+    "risk_questions": [0, 1, 0],
+    "vehicle": {"year": 2018}
+    }
+
+    resp = requests.post(url, json=base_data)
+    print(resp.json())
+    ```
+
+# Next Steps
+
+* Clean Up Consants
+* Organize Constants into Enums or DataStructures
+* Add missing tests for the missing rules [income_rule, house_ownership_rule, dependents_rule, marital_state_rule, vehicle_rule]
