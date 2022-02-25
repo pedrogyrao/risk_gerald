@@ -1,6 +1,4 @@
-'''
-8. If the user's vehicle was produced in the last 5 years, add 1 risk point to that vehicle’s score.
-'''
+import datetime
 from contract import assemble_empty_result
 
 # input related
@@ -39,6 +37,8 @@ SECOND_AGE_THRESHOLD = 40
 LAST_AGE_THRESHOLD = 60
 
 INCOME_THRESHOLD = 200000
+
+VEHICLE_YEAR_THRESHOLD = 5
 
 
 def disable_rule(data, result):
@@ -124,6 +124,18 @@ def marital_state_rule(data, result):
     return result
 
 
+def vehicle_rule(data, result):
+    '''
+    If the user's vehicle was produced in the last 5 years,
+    add 1 risk point to that vehicle’s score.
+    '''
+    current_year = datetime.datetime.now().year
+    last_acceptable_year = current_year - VEHICLE_YEAR_THRESHOLD
+    if (data[VEHICLE_YEAR] != None) and data[VEHICLE_YEAR] >= last_acceptable_year:
+        return _run_deduction(result, -1, insurance_lines=[AUTO_KEY])
+    return result
+
+
 def evaluate(data):
     result = assemble_empty_result()
     result = disable_rule(data, result)
@@ -133,4 +145,5 @@ def evaluate(data):
     result = house_ownership_rule(data, result)
     result = dependents_rule(data, result)
     result = marital_state_rule(data, result)
+    result = vehicle_rule(data, result)
     return result
