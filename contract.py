@@ -1,3 +1,6 @@
+from errors import ContractError
+
+
 # Input Data Keys
 # todo: turn then into a structure like enum
 AGE = "age"  # 35
@@ -48,10 +51,6 @@ MARRIED = 'married'
 SINGLE = 'single'
 
 validations = []
-
-
-class ContractError(ValueError):
-    pass
 
 
 def validation(func):

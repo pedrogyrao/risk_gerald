@@ -1,8 +1,10 @@
-from isodate import DT_BAS_ORD_COMPLETE
+import sys,os
+sys.path.append(os.getcwd())
+
 import pytest
 from parameterized import parameterized
 
-from risk_gerald.contract import (
+from contract import (
     do_valid_input,
     AGE,
     DEPENDENTS,

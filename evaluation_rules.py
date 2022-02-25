@@ -1,6 +1,6 @@
 import datetime
-from contract import assemble_empty_result
 
+from errors import BadRuleFormat, ContractError
 # input related
 from contract import (
     AGE,
@@ -18,6 +18,7 @@ from contract import (
     HOME_KEY,
     LIFE_KEY,
 )
+from contract import assemble_empty_result
 from contract import is_house_mortgaged, is_married
 
 INELIGIBLE = 'ineligible'
@@ -41,12 +42,9 @@ RULE_ARGNAMES = ('data', 'result')
 risk_rules = []
 
 
-class BadRuleFormat(Exception):
-    pass
-
-
 def risk_rule(rule):
-    func_args = rule.__code__.co_varnames
+    arg_count = rule.__code__.co_argcount
+    func_args = rule.__code__.co_varnames[: arg_count]
     if func_args != RULE_ARGNAMES:
         raise BadRuleFormat(
             'Rule {rule} has bad arguments {args}'.format(
@@ -167,8 +165,14 @@ def vehicle_rule(data, result):
 
 
 def calculate_base_score(data):
-    base_score = sum(data[RISK_QUESTIONS])
-    return base_score
+    try:
+        base_score = sum(data[RISK_QUESTIONS])
+        return base_score
+    except TypeError:
+        raise ContractError(
+            'Not acceptable question answers provided {questions}'.format(
+                questions=data[RISK_QUESTIONS]
+            ))
 
 
 def map_scores(result):
