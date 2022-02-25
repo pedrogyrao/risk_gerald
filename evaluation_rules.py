@@ -89,8 +89,8 @@ def age_rule(data, result):
     ineligible for disability and life insurance.
     '''
     if data[AGE] > LAST_AGE_THRESHOLD:
-        result['life'] = INELIGIBLE
-        result['disability'] = INELIGIBLE
+        result[LIFE_KEY] = INELIGIBLE
+        result[DISABILITY_KEY] = INELIGIBLE
     return result
 
 
