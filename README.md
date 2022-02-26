@@ -39,7 +39,7 @@ Creating a rule:
 ```python
 @risk_rule
 def my_rule(data, result):
-    return data, result
+    return result
 ```
 
 ## 3. Mapping Risk Points to Lines.
